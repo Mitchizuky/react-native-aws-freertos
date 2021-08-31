@@ -134,12 +134,19 @@ class AwsFreertos: RCTEventEmitter {
         self.sendEvent(withName:EventsEnum.DID_FAIL_TO_CONNECT_DEVICE, body: "FAIL");
     }
 
-    @objc(didSaveNetwork)
-    func didSaveNetwork() -> Void {
+    @objc(didSaveNetwork:)
+    func didSaveNetwork(_ notification: Notification) -> Void {
+        if let saveNetworkResp = notification.userInfo?["saveNetworkResp"] as? SaveNetworkResp {
+                    if saveNetworkResp.status != NetworkOpStatus.success {
+                       self.sendEvent(withName:EventsEnum.ERROR_SAVE_NETWORK, body: saveNetworkResp.status);
+                    }
+        }
+        else{
         let result: NSMutableDictionary = [:]
         result["macAddr"] = lastConnectedDevice!.peripheral.identifier.uuidString
         result["name"] = lastConnectedDevice!.peripheral.name
         self.sendEvent(withName:EventsEnum.DID_SAVE_NETWORK, body: result);
+        }
     }
 
     @objc(didConnectDevice)
